@@ -46,7 +46,27 @@ app.get('/api/message-history', (req, res) => {
 		}
 	});
 });
-
+app.get('/api/room-activity', (req, res) => {
+	const room = req.query.room;
+	const username = req.query.username;
+	Message.find({ room: room }).sort({created: "asc"}).exec( (err, messages) => {
+		if (err) {
+			return res.status(500).send(err);
+		} else {
+			Message.find({ room: room, username: username }, (err, selfMessages) => {
+				if (err) {
+					return res.status(500).send(err);
+				} else {
+					return res.send({
+						allMessages: messages.length,
+						selfMessages: selfMessages.length,
+						firstMessage: messages[0].created,
+					});
+				}
+			});
+		}
+	});
+});
 //create server
 const httpServer = createServer(app);
 

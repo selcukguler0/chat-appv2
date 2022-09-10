@@ -1,6 +1,29 @@
-import React from 'react'
+import React,{useState, useEffect} from 'react'
 
 export default function RoomActivityBox() {
+	const [data, setData] = useState([])
+
+	// date difference in day => Math.ceil(time diff / (1000 * 60 * 60 * 24)); 
+
+	const RoomAge = (date) => {
+		const diff = new Date() - new Date(date.firstMessage)
+		if (diff / (1000 * 60 * 60) >= 24) {
+			return Math.ceil( diff / (1000 * 60 * 60 * 24)).toString() + " days"
+		}
+		else if (diff / (1000 * 60 * 60) < 24) {
+			return Math.ceil(diff / (1000 * 60 * 60)).toString() + " hours"
+		}
+		return Math.ceil(diff / (1000 * 60 * 60 * 24)).toString() + " minutes"
+	}
+
+	useEffect(() => {
+		fetch('http://localhost:3001/api/room-activity?room=test&username=test')
+			.then(response => response.json())
+			.then(data => setData(data));
+	}, [])
+	if (!data) {
+		return <div>Loading...</div>
+	}
 	return (
 		<div className="app-activity-box">
 			<div className="activity-info-boxes">
@@ -24,7 +47,7 @@ export default function RoomActivityBox() {
 						</svg>
 					</div>
 					<div className="info-text-wrapper">
-						<span className="info-text-upper">13h</span>
+						<span className="info-text-upper">{RoomAge(data)}</span>
 						<span className="info-text-bottom">Time</span>
 					</div>
 				</div>
@@ -50,7 +73,7 @@ export default function RoomActivityBox() {
 					</div>
 					<div className="info-text-wrapper">
 						<span className="info-text-upper">32</span>
-						<span className="info-text-bottom">Atendeed</span>
+						<span className="info-text-bottom">Active Users</span>
 					</div>
 				</div>
 				<div className="activity-info-box meeting">
@@ -73,8 +96,8 @@ export default function RoomActivityBox() {
 						</svg>
 					</div>
 					<div className="info-text-wrapper">
-						<span className="info-text-upper">122</span>
-						<span className="info-text-bottom">Meetings</span>
+						<span className="info-text-upper">{data.allMessages}</span>
+						<span className="info-text-bottom">All Messages</span>
 					</div>
 				</div>
 				<div className="activity-info-box reject">
@@ -97,16 +120,17 @@ export default function RoomActivityBox() {
 						</svg>
 					</div>
 					<div className="info-text-wrapper">
-						<span className="info-text-upper">12</span>
-						<span className="info-text-bottom">Rejected</span>
+						<span className="info-text-upper">{ data.selfMessages}</span>
+						<span className="info-text-bottom">Self Messages</span>
 					</div>
 				</div>
 			</div>
-			<div className="activity-info-header">
+			{/* <div className="activity-info-header">
 				<span className="info-header-bold">Current Week</span>
 				<span className="info-header-light">Activity</span>
-			</div>
-			<div className="activity-days-wrapper">
+			</div> */}
+			{/* // TODO : Add chart here basic on days */}
+			{/* <div className="activity-days-wrapper">
 				<div className="day">
 					<div className="chart" />
 					<span>MON</span>
@@ -135,7 +159,7 @@ export default function RoomActivityBox() {
 					<div className="chart" />
 					<span>SUN</span>
 				</div>
-			</div>
+			</div> */}
 		</div>
 	)
 }
