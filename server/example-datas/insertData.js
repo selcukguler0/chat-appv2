@@ -26,6 +26,6 @@ mongoose.connect(db, {
 var room = new Room({
 	name: 'lawliet',
 	status: "active",
-	password: "1234",
+	password: "",
 });
 room.save();

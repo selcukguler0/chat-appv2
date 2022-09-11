@@ -2,6 +2,7 @@ import React, {useEffect, useState, useRef} from 'react'
 
 function ChatPanel({ room, socket, username }) {
 	const messageEl = useRef(null);
+	const sendMessageRef = useRef(null);
 	const [message, setMessage] = useState('');
 	const [messages, setMessages] = useState([]);
 	console.log("username",username);
@@ -50,6 +51,15 @@ function ChatPanel({ room, socket, username }) {
 		socket.emit('message', { message, username, room });
 		setMessage('');
 	};
+	// document.body.addEventListener("keypress", function (event) {
+	// 	// If the user presses the "Enter" key on the keyboard
+	// 	if (event.key === "Enter") {
+	// 		// Cancel the default action, if needed
+	// 		event.preventDefault();
+	// 		console.log("clicked enter");
+	// 		document.getElementsByClassName("chat-send-btn")[0].click();
+	// 	}
+	// });
 	return (
 		<div className="app-main">
 			<div ref={messageEl} className="chat-wrapper">
@@ -104,6 +114,7 @@ function ChatPanel({ room, socket, username }) {
 				</button>
 				<div className="input-wrapper">
 					<input
+						ref={sendMessageRef}
 						value={message}
 						onChange={(e) => setMessage(e.target.value)}
 						className="chat-input"
@@ -128,7 +139,7 @@ function ChatPanel({ room, socket, username }) {
 						</svg>
 					</button>
 				</div>
-				<button onClick={sendMessage} className="chat-send-btn">Send</button>
+				<button ref={sendMessageRef} onClick={sendMessage} className="chat-send-btn">Send</button>
 			</div>
 		</div>
 	)
