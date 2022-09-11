@@ -20,6 +20,8 @@ export default function Room() {
 	const [roomData, setRoomData] = useState({});
 	const [accessRoom, setAccessRoom] = useState(false);
 	const [password, setPassword] = useState('');
+	const [username, setUsername] = useState('');
+	
 	useEffect(() => {
 		// check room exists
 		fetch(`http://localhost:3001/api/room-exists?room=${id}`)
@@ -38,7 +40,7 @@ export default function Room() {
 			);
 	}, [])
 
-	const validatePassword = () => {
+	const roomLogin = () => {
 		if (password === roomData.password) {
 			localStorage.setItem('password', password);
 			setAccessRoom(true);
@@ -60,8 +62,9 @@ export default function Room() {
 				}
 				return (
 					<div>
+						<input placeholder="Enter Username" value={username} onChange={(e) => setUsername(e.target.value)} />
 						<input type="password" placeholder="Enter Room Password" value={password} onChange={(e) => setPassword(e.target.value)} />
-						<button onClick={validatePassword}>Submit</button>
+						<button onClick={roomLogin}>Submit</button>
 					</div>
 				)
 			}
