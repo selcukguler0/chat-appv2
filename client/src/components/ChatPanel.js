@@ -1,11 +1,8 @@
 import React, {useEffect, useState, useRef} from 'react'
 
-import io from "socket.io-client";
-const socket_url = process.env.REACT_APP_SOCKET_URL ||
-	"http://localhost:3001";
-var socket = io.connect(socket_url);
 
-function ChatPanel({ room }) {
+
+function ChatPanel({ room, socket }) {
 	const messageEl = useRef(null);
 	const [message, setMessage] = useState('');
 	const [messages, setMessages] = useState([]);

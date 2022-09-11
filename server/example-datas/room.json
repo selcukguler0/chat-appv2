@@ -1,10 +1,12 @@
 [
 	{
 		"name": "test",
-		"active": true
+		"active": true,
+		"createdAt": "2018-01-01T00:00:00Z"
 	},
 	{
 		"name": "test2",
-		"active": false
+		"active": false,
+		"createdAt": "2019-01-01T00:00:00Z"
 	}
 ]

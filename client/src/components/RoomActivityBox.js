@@ -1,12 +1,10 @@
 import React,{useState, useEffect} from 'react'
 
-export default function RoomActivityBox({room}) {
+export default function RoomActivityBox({ room, socket }) {
 	const [data, setData] = useState([])
-	
-	console.log(room);
 	// date difference in day => Math.ceil(time diff / (1000 * 60 * 60 * 24)); 
 	const RoomAge = (date) => {
-		const diff = new Date() - new Date(date.firstMessage)
+		const diff = new Date() - new Date(date.roomAge)
 		if (diff / (1000 * 60 * 60) >= 24) {
 			return Math.ceil( diff / (1000 * 60 * 60 * 24)).toString() + " days"
 		}
@@ -16,11 +14,25 @@ export default function RoomActivityBox({room}) {
 		return Math.ceil(diff / (1000 * 60 * 60 * 24)).toString() + " minutes"
 	}
 
+	//get data at beginning
 	useEffect(() => {
 		room && fetch(`http://localhost:3001/api/room-activity?room=${room}&username=test`)
 			.then(response => response.json())
 			.then(data => setData(data));
-	}, [])
+	}, []);
+
+	//get data when new message comes
+	useEffect(() => {
+		socket.on('message', () => {
+			room && fetch(`http://localhost:3001/api/room-activity?room=${room}&username=test`)
+				.then(response => response.json())
+				.then(data => setData(data));
+		});
+		// return () => {
+		// 	socket.off('message');
+		// };
+	}, [socket]);
+
 	if (data.length === 0) {
 		return <div>Loading Room Info...</div>
 	}
@@ -96,7 +108,7 @@ export default function RoomActivityBox({room}) {
 						</svg>
 					</div>
 					<div className="info-text-wrapper">
-						<span className="info-text-upper">{data.allMessages}</span>
+						<span className="info-text-upper">{data.allMessagesCount}</span>
 						<span className="info-text-bottom">All Messages</span>
 					</div>
 				</div>
@@ -120,7 +132,7 @@ export default function RoomActivityBox({room}) {
 						</svg>
 					</div>
 					<div className="info-text-wrapper">
-						<span className="info-text-upper">{ data.selfMessages}</span>
+						<span className="info-text-upper">{data.selfMessagesCount}</span>
 						<span className="info-text-bottom">Self Messages</span>
 					</div>
 				</div>

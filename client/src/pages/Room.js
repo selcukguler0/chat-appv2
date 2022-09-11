@@ -9,6 +9,10 @@ import RoomHeader from '../components/RoomHeader';
 import ProfileBox from '../components/ProfileBox';
 import RoomActivityBox from '../components/RoomActivityBox';
 
+import io from "socket.io-client";
+const socket_url = process.env.REACT_APP_SOCKET_URL ||
+	"http://localhost:3001";
+var socket = io.connect(socket_url);
 
 export default function Room() {
 	let { id } = useParams();
@@ -16,19 +20,19 @@ export default function Room() {
 
 	useEffect(() => {
 		// check room exists
-		fetch(process.env.REACT_APP_SITE_URL+`/api/room-exists?room=${id}`)
+		fetch(process.env.REACT_APP_SITE_URL + `/api/room-exists?room=${id}`)
 			.then(res => res.json())
 			.then(room => {
 				if (room) {
 					console.log(room[0]);
-					if (room[0].active) {
+					if (room[0].status === "active") {
 						setRoomExists(true);
 					}
 				} else {
 					setRoomExists(false);
 				}
 			}
-		);
+			);
 	}, [])
 	if (!roomExists) {
 		return (
@@ -43,11 +47,11 @@ export default function Room() {
 				<ActiveUsers room={id} />
 
 			</div>
-			<ChatPanel room={id} />
+			<ChatPanel room={id} socket={socket} />
 			<div className="app-right">
 
-				<RoomActivityBox room={id} />
-			
+				<RoomActivityBox room={id} socket={socket} />
+
 			</div>
 			{/* //TODO - Add Theme Picker */}
 			{/* <div className="app-right-bottom">

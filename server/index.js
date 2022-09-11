@@ -60,35 +60,33 @@ app.get('/api/room-exists', (req, res) => {
 app.get('/api/room-activity', (req, res) => {
 	const room = req.query.room;
 	const username = req.query.username;
-	var allMessages;
-	var selfMessages;
-	var roomAge;
-	Message.find({ room: room }).sort({created: "asc"}).exec( (err, messages) => {
+
+	Message.find({ room: room }).sort({ created: "asc" }).exec((err, allMessages) => {
 		if (err) {
 			return res.status(500).send(err);
 		} else {
-			allMessages = messages;
+			Message.find({ room: room, username: username }, (err, selfMessages) => {
+				if (err) {
+					return res.status(500).send(err);
+				} else {
+					Room.find({ name: room }, (err, room) => {
+						if (err) {
+							return res.status(500).send(err);
+						} else {
+							return res.send({
+								allMessagesCount: allMessages.length,
+								selfMessagesCount: selfMessages.length,
+								roomAge: room[0].createdAt
+							});
+						}
+					});
+				}
+			});
+			
 		}
 	});
-	Message.find({ room: room, username: username }, (err, messages) => {
-		if (err) {
-			return res.status(500).send(err);
-		} else {
-			selfMessages = messages;
-		}
-	});
-	Room.find({ name: room }, (err, room) => {
-		if (err) {
-			return res.status(500).send(err);
-		} else {
-			roomAge = room.createdAt;
-		}
-	});
-	return res.send({
-		allMessages,
-		selfMessages,
-		roomAge
-	});
+	
+	
 });
 //create server
 const httpServer = createServer(app);
