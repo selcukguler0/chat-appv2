@@ -58,6 +58,25 @@ app.get('/api/room-exists', (req, res) => {
 		}
 	});
 });
+app.get('/api/create-room', (req, res) => {
+	const username = req.query.username;
+	const roomName = req.query.room;
+	const password = req.query.password;
+
+	Room.create({ name: roomName, password: password, status: "active" }, (err, room) => {
+		if (err) {
+			return res.status(500).send(err);
+		} else {
+			User.create({ name: username, room: roomName, status: "" }, (err, user) => {
+				if (err) {
+					return res.status(500).send(err);
+				} else {
+					return res.send({ message: "Room created", room: room.name, user: user.name });
+				}
+			});
+		}
+	});
+});
 app.get('/api/room-activity', (req, res) => {
 	const room = req.query.room;
 	const username = req.query.username;

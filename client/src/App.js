@@ -1,89 +1,43 @@
 import './styles/App.css';
 
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import Helmet from 'react-helmet';
 import $ from 'jquery';
-
-import io from "socket.io-client";
-const socket_url = process.env.REACT_APP_SOCKET_URL ||
-	"http://localhost:3001";
-var socket = io.connect(socket_url);
+import cryptoRandomString from 'crypto-random-string';
+import { useNavigate } from 'react-router-dom';
 
 function App() {
-	const [message, setMessage] = useState('');
-	useEffect(() => {
-		socket.on('connect', () => {
-			console.log('connected');
-		});
-		return () => {
-			socket.off('connect');
-		};
-	}, []);
+	const [username, setUsername] = useState("");
+	const [room] = useState(cryptoRandomString({ length: 12, type: 'url-safe' }));
+	const [password, setPassword] = useState("");
+	const navigate = useNavigate();
 
-	useEffect(() => {
-		$('.username').on("change keyup paste",
-			function () {
-				if ($(this).val().length > 5) {
-					$('.icon-paper-plane').addClass("next");
-				} else {
-					$('.icon-paper-plane').removeClass("next");
-				}
-			}
-		);
-
-		$('.next-button.username').on("click",
-			function () {
-				console.log("Something");
-				$('.username-section').addClass("fold-up");
-				$('.room-name-section').removeClass("folded");
-			}
-		);
-		$('.room-name').on("change keyup paste",
-			function () {
-				if ($(this).val().length > 5) {
-					$('.icon-paper-plane').addClass("next");
-				} else {
-					$('.icon-paper-plane').removeClass("next");
-				}
-			}
-		);
-
-		$('.next-button.room-name').on("click",
-			function () {
-				console.log("Something");
-				$('.room-name-section').addClass("fold-up");
-				$('.password-section').removeClass("folded");
-			}
-		);
-
-		$('.password').on("change keyup paste",
-			function () {
-				if ($(this).val().length > 5) {
-					$('.icon-lock').addClass("next");
-					
-				} else {
-					$('.icon-lock').removeClass("next");
-				}
-			}
-		);
-		$('.next-button').on("mouseenter",
-			function () {
-				$(this).css('cursor', 'pointer');
-			}
-		);
-		$('.next-button.password').on("click",
-			function () {
-				console.log("Something");
-				$('.password-section').addClass("fold-up");
-				$('.success').css("marginTop", 0);
-			}
-		);
-	}, []);
-
-	const sendMessage = () => {
-		socket.emit('message', message);
+	const usernameHandler = (e) => {
+		setUsername(e.target.value);
+		if (e.target.value.length >= 6) {
+			$('#password').attr('disabled', false);
+		} else {
+			$('#password').attr('disabled', true);
+		}
 	};
-	
+
+	const createRoom = (e) => {
+		console.log("username", username);
+		console.log("room", room);
+		console.log("password", password);
+		fetch(`http://localhost:3001/api/create-room?username=${username}&room=${room}&password=${password}`)
+			.then(res => res.json())
+			.then(data => {
+				if (data.message === "Room created") {
+					localStorage.setItem('username', username);
+					localStorage.setItem('room', room);
+					localStorage.setItem('password', password);
+					navigate(`/room/${room}`);
+				}
+			}
+		);
+	}
+
 	return (
 		<>
 			<Helmet>
@@ -96,71 +50,34 @@ function App() {
 					rel="stylesheet"
 					type="text/css"
 				/>
+				<body className="bodyApp" />
 			</Helmet>
 			<div className="App">
-				<h1>Chat with your Friends.</h1>
-				<>
-					<div className="back" />
-					<div className="registration-form">
-						<header>
-							<h1>Create Room</h1>
-							<p>Start chatting</p>
-						</header>
-						<form>
-							<div className="input-section username-section">
-								<input
-									className="username"
-									type="text"
-									placeholder="ENTER YOUR USERNAME"
-									autoComplete="off"
-								/>
-								<div className="animated-button">
-									<span className="icon-paper-plane">
-										<i className="fa fa-home" />
-									</span>
-									<span className="next-button username">
-										<i className="fa fa-arrow-up" />
-									</span>
-								</div>
+				<form>
+					<label htmlFor="password">Password</label>
+					<input id="username" minLength={6} maxLength={12} placeholder="Enter your username" required={true} value={username} onChange={(e) => usernameHandler(e)} />
+					<input id="password" type="password" minLength={6} maxLength={12} placeholder="Enter your password" required={true} value={password} onChange={(e) => setPassword(e.target.value)} disabled />
+					<label onClick={() => createRoom(username, password)} className="login-button" htmlFor="login"><span>Enter</span>
+						<svg>
+							<path d="M10,17V14H3V10H10V7L15,12L10,17M7,2H17A2,2 0 0,1 19,4V20A2,2 0 0,1 17,22H7A2,2 0 0,1 5,20V16H7V20H17V4H7V8H5V4A2,2 0 0,1 7,2Z"></path>
+						</svg>
+					</label>
+					<div className="padlock">
+						<div className="padlock__hook">
+							<div className="padlock__hook-body"></div>
+							<div className="padlock__hook-body"></div>
+						</div>
+						<div className="padlock__body">
+							<div className="padlock__face">
+								<div className="padlock__eye padlock__eye--left"></div>
+								<div className="padlock__eye padlock__eye--right"></div>
+								<div className="padlock__mouth padlock__mouth--one"></div>
+								<div className="padlock__mouth padlock__mouth--two"></div>
+								<div className="padlock__mouth padlock__mouth--three"></div>
 							</div>
-							<div className="input-section room-name-section folded">
-								<input
-									className="room-name"
-									type="text"
-									placeholder="ENTER YOUR ROOM NAME"
-									autoComplete="off"
-								/>
-								<div className="animated-button">
-									<span className="icon-paper-plane">
-										<i className="fa fa-home" />
-									</span>
-									<span className="next-button room-name">
-										<i className="fa fa-arrow-up" />
-									</span>
-								</div>
-							</div>
-							<div className="input-section password-section folded">
-								<input
-									className="password"
-									type="password"
-									placeholder="ENTER YOUR ROOM PASSWORD"
-								/>
-								<div className="animated-button">
-									<span className="icon-lock">
-										<i className="fa fa-lock" />
-									</span>
-									<span className="next-button password">
-										<i className="fa fa-arrow-up" />
-									</span>
-								</div>
-							</div>
-							
-							<div className="success">
-								<p>ROOM CREATED</p>
-							</div>
-						</form>
+						</div>
 					</div>
-				</>
+				</form>
 
 			</div>
 		</>

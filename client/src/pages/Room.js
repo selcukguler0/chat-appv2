@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { useParams } from 'react-router-dom'
+import $ from 'jquery';
+import Helmet from 'react-helmet';
 
 import '../styles/Room.css';
 
@@ -50,7 +52,14 @@ export default function Room() {
 			}
 			);
 	}, [])
-
+	const usernameHandler = (e) => {
+		setUsername(e.target.value);
+		if (e.target.value.length >= 6) {
+			$('#password').attr('disabled', false);
+		} else {
+			$('#password').attr('disabled', true);
+		}
+	};
 	const roomLogin = () => {
 		if (password === roomData.password) {
 			localStorage.setItem('password', password);
@@ -74,11 +83,45 @@ export default function Room() {
 					setAccessRoom(true);
 				}
 				return (
-					<div>
-						<input placeholder="Enter Username" value={username} onChange={(e) => setUsername(e.target.value)} />
-						<input type="password" placeholder="Enter Room Password" value={password} onChange={(e) => setPassword(e.target.value)} />
-						<button onClick={roomLogin}>Submit</button>
-					</div>
+					<>
+						<Helmet>
+							<link
+								rel="stylesheet"
+								href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css"
+							/>
+							<link
+								href="https://fonts.googleapis.com/css?family=Roboto:400,700,900"
+								rel="stylesheet"
+								type="text/css"
+							/>
+							<body className="bodyApp" />
+						</Helmet>
+						<form>
+							<label htmlFor="password">Password</label>
+							<input id="username" minLength={6} maxLength={12} placeholder="Enter your username" required={true} value={username} onChange={(e) => usernameHandler(e)} />
+							<input id="password" type="password" minLength={6} maxLength={12} placeholder="Enter your password" required={true} value={password} onChange={(e) => setPassword(e.target.value)} disabled />
+							<label onClick={roomLogin} className="login-button" htmlFor="login"><span>Enter</span>
+								<svg>
+									<path d="M10,17V14H3V10H10V7L15,12L10,17M7,2H17A2,2 0 0,1 19,4V20A2,2 0 0,1 17,22H7A2,2 0 0,1 5,20V16H7V20H17V4H7V8H5V4A2,2 0 0,1 7,2Z"></path>
+								</svg>
+							</label>
+							<div className="padlock">
+								<div className="padlock__hook">
+									<div className="padlock__hook-body"></div>
+									<div className="padlock__hook-body"></div>
+								</div>
+								<div className="padlock__body">
+									<div className="padlock__face">
+										<div className="padlock__eye padlock__eye--left"></div>
+										<div className="padlock__eye padlock__eye--right"></div>
+										<div className="padlock__mouth padlock__mouth--one"></div>
+										<div className="padlock__mouth padlock__mouth--two"></div>
+										<div className="padlock__mouth padlock__mouth--three"></div>
+									</div>
+								</div>
+							</div>
+						</form>
+					</>
 				)
 			}
 			//if room not protected
