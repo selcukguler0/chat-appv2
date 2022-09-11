@@ -17,15 +17,18 @@ var socket = io.connect(socket_url);
 export default function Room() {
 	let { id } = useParams();
 	const [roomExists, setRoomExists] = useState(false);
-
+	const [roomData, setRoomData] = useState({});
+	const [accessRoom, setAccessRoom] = useState(false);
+	const [password, setPassword] = useState('');
 	useEffect(() => {
 		// check room exists
-		fetch(process.env.REACT_APP_SITE_URL + `/api/room-exists?room=${id}`)
+		fetch(`http://localhost:3001/api/room-exists?room=${id}`)
 			.then(res => res.json())
 			.then(room => {
 				if (room) {
 					console.log(room[0]);
 					if (room[0].status === "active") {
+						setRoomData(room[0]);
 						setRoomExists(true);
 					}
 				} else {
@@ -34,10 +37,31 @@ export default function Room() {
 			}
 			);
 	}, [])
+
+	const validatePassword = () => {
+		if (password === roomData.password) {
+			console.log("ok");
+			setAccessRoom(true);
+		} else {
+			setAccessRoom(false);
+		}
+	}
+
 	if (!roomExists) {
 		return (
 			<div>Room not exists</div>
 		)
+	}
+	
+	if (!accessRoom) {
+		if (roomData.password) {
+			return (
+				<div>
+					<input type="password" placeholder="Enter Room Password" value={password} onChange={(e) => setPassword(e.target.value)} />
+					<button onClick={validatePassword}>Submit</button>
+				</div>
+			)
+		}
 	}
 	return (
 		<div className="app-container">
@@ -45,13 +69,10 @@ export default function Room() {
 				<RoomHeader room={id} />
 				<ProfileBox room={id} />
 				<ActiveUsers room={id} />
-
 			</div>
 			<ChatPanel room={id} socket={socket} />
 			<div className="app-right">
-
 				<RoomActivityBox room={id} socket={socket} />
-
 			</div>
 			{/* //TODO - Add Theme Picker */}
 			{/* <div className="app-right-bottom">

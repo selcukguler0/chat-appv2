@@ -16,15 +16,16 @@ mongoose.connect(db, {
 	}
 });
 
-var message = new Message({
-	username: 'lawliet',
-	message: 'selam selçuk',
-	room: 'test'
-});
-message.save();
+// var message = new Message({
+// 	username: 'lawliet',
+// 	message: 'selam selçuk',
+// 	room: 'test'
+// });
+// message.save();
 
 var room = new Room({
 	name: 'lawliet',
 	status: "active",
+	password: "1234",
 });
 room.save();

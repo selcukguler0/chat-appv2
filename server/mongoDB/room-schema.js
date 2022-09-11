@@ -4,6 +4,7 @@ const { Schema, model } = mongoose;
 var RoomSchema = new Schema({
 	name: String,
 	status: String,
+	password: String,
 	createdAt: { type: Date, default: Date.now }
 });
 

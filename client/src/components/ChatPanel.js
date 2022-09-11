@@ -24,7 +24,7 @@ function ChatPanel({ room, socket }) {
 
 	// get new messages
 	useEffect(() => {
-		socket.on('message', (message) => {
+		socket.on('message', () => {
 			fetch(`http://localhost:3001/api/message-history?room=${room}`)
 				.then(res => res.json())
 				.then(data => {
