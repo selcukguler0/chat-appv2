@@ -1,6 +1,6 @@
 import React,{useState, useEffect} from 'react'
 
-export default function RoomActivityBox({ room, socket, username }) {
+export default function RoomActivityBox({ room, socket, username, users }) {
 	const [data, setData] = useState([])
 	// date difference in day => Math.ceil(time diff / (1000 * 60 * 60 * 24)); 
 	const RoomAge = (date) => {
@@ -24,7 +24,7 @@ export default function RoomActivityBox({ room, socket, username }) {
 	//get data when new message comes
 	useEffect(() => {
 		socket.on('message', () => {
-			room && fetch(`http://localhost:3001/api/room-activity?room=${room}&username=test`)
+			room && fetch(`http://localhost:3001/api/room-activity?room=${room}&username=${username}`)
 				.then(response => response.json())
 				.then(data => setData(data));
 		});
@@ -84,7 +84,8 @@ export default function RoomActivityBox({ room, socket, username }) {
 						</svg>
 					</div>
 					<div className="info-text-wrapper">
-						<span className="info-text-upper">32</span>
+						{/* (+1) including self */}
+						<span className="info-text-upper">{users.length + 1}</span>
 						<span className="info-text-bottom">Active Users</span>
 					</div>
 				</div>

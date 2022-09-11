@@ -1,10 +1,10 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 
-export default function ActiveUsers({ room }) {
+export default function ActiveUsers({ room, username, users }) {
 	return (
 		<div className="chat-list-wrapper">
 			<div className="chat-list-header">
-				Active Conversations <span className="c-number">4</span>
+				Active Users <span className="c-number">{users.length}</span>
 				<svg
 					className="list-header-arrow"
 					xmlns="http://www.w3.org/2000/svg"
@@ -22,21 +22,16 @@ export default function ActiveUsers({ room }) {
 				</svg>
 			</div>
 			<ul className="chat-list active">
-				<li className="chat-list-item active">
-					<img
-						src="https://images.unsplash.com/photo-1587080266227-677cc2a4e76e?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=934&q=80"
-						alt="chat"
-					/>
-					<span className="chat-list-name">Dwight Schrute</span>
-				</li>
-				<li className="chat-list-item">
-					<img
-						src="https://images.unsplash.com/photo-1566465559199-50c6d9c81631?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=934&q=80"
-						alt="chat"
-					/>
-					<span className="chat-list-name">Andy Bernard</span>
-				</li>
-
+				{users?.map((user,i) => (
+					<li key={i} className="chat-list-item">
+						<img
+							src={`https://avatars.dicebear.com/api/avataaars/${user.username}.svg`}
+							alt="chat"
+							lazyload="true"
+						/>
+						<span className="chat-list-name">{user.username}</span>
+					</li>
+				))}
 			</ul>
 		</div>
 	)

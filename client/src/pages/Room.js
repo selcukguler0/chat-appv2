@@ -21,7 +21,8 @@ export default function Room() {
 	const [accessRoom, setAccessRoom] = useState(false);
 	const [password, setPassword] = useState('');
 	const [username, setUsername] = useState('');
-	
+	const [users, setUsers] = useState([]);
+
 	useEffect(() => {
 		// check room exists
 		fetch(`http://localhost:3001/api/room-exists?room=${id}`)
@@ -36,6 +37,16 @@ export default function Room() {
 				} else {
 					setRoomExists(false);
 				}
+			});
+		
+		fetch(`http://localhost:3001/api/active-users?room=${id}`)
+			.then(res => res.json())
+			.then(users => {
+				console.log(users);
+				var filteredUsers = users.filter(user => user.status === 'online')
+					.filter(user => user.username !== username);
+				console.log(filteredUsers);
+				setUsers(filteredUsers);
 			}
 			);
 	}, [])
@@ -80,18 +91,18 @@ export default function Room() {
 		// user has access to room
 
 	}
-	
+
 	console.log("username", username);
 	return (
 		<div className="app-container">
 			<div className="app-left">
 				<RoomHeader room={id} />
-				<ProfileBox room={id} />
-				<ActiveUsers room={id} />
+				<ProfileBox room={id} username={username} />
+				<ActiveUsers room={id} username={username} users={users} />
 			</div>
 			<ChatPanel room={id} socket={socket} username={username} />
 			<div className="app-right">
-				<RoomActivityBox room={id} socket={socket} username={username} />
+				<RoomActivityBox room={id} socket={socket} username={username} users={users} />
 			</div>
 			{/* //TODO - Add Theme Picker */}
 			{/* <div className="app-right-bottom">

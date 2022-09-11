@@ -25,14 +25,15 @@ mongoose.connect(db, {
 	}
 });
 
-app.get('/api/activeUsers', (req, res) => {
-	var message = new Message({
-		username: 'test',
-		message: 'test',
-		room: 'test'
+app.get('/api/active-users', (req, res) => {
+	const room = req.query.room;
+	User.find({ room: room }, (err, users) => {
+		if (err) {
+			return res.status(500).send(err);
+		} else {
+			return res.send(users);
+		}
 	});
-	message.save();
-	res.send(message);
 });
 app.get('/api/message-history', (req, res) => {
 	const room = req.query.room;

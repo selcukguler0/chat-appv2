@@ -1,14 +1,14 @@
 import React from 'react'
 
-function ProfileBox({ room }) {
+function ProfileBox({ room, username }) {
 	return (
 		<div className="app-profile-box">
 			<img
-				src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=2250&q=80"
+				src={`https://avatars.dicebear.com/api/avataaars/${username}.svg`}
 				alt="profile"
 			/>
 			<div className="app-profile-box-name">
-				Pam Beesly Halpert
+				{username}
 				<button className="app-setting">
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
@@ -28,7 +28,8 @@ function ProfileBox({ room }) {
 					</svg>
 				</button>
 			</div>
-			<p className="app-profile-box-title">UI Designer</p>
+			{/* //TODO can add later - title
+			<p className="app-profile-box-title">title</p> */}
 			<div className="switch-status">
 				<input
 					type="checkbox"
