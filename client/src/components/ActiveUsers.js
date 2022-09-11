@@ -1,6 +1,6 @@
 import React from 'react'
 
-export default function ActiveUsers() {
+export default function ActiveUsers({ room }) {
 	return (
 		<div className="chat-list-wrapper">
 			<div className="chat-list-header">

@@ -1,10 +1,10 @@
 import React,{useState, useEffect} from 'react'
 
-export default function RoomActivityBox() {
+export default function RoomActivityBox({room}) {
 	const [data, setData] = useState([])
-
+	
+	console.log(room);
 	// date difference in day => Math.ceil(time diff / (1000 * 60 * 60 * 24)); 
-
 	const RoomAge = (date) => {
 		const diff = new Date() - new Date(date.firstMessage)
 		if (diff / (1000 * 60 * 60) >= 24) {
@@ -17,12 +17,12 @@ export default function RoomActivityBox() {
 	}
 
 	useEffect(() => {
-		fetch('http://localhost:3001/api/room-activity?room=test&username=test')
+		room && fetch(`http://localhost:3001/api/room-activity?room=${room}&username=test`)
 			.then(response => response.json())
 			.then(data => setData(data));
 	}, [])
-	if (!data) {
-		return <div>Loading...</div>
+	if (data.length === 0) {
+		return <div>Loading Room Info...</div>
 	}
 	return (
 		<div className="app-activity-box">

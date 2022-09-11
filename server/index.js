@@ -1,21 +1,21 @@
 import { Server } from 'socket.io';
 import cors from 'cors';
 import { createServer } from "http";
+//Mongoose
 import mongoose from 'mongoose';
 import Message from './mongoDB/message-shema.js';
+import Room from './mongoDB/room-schema.js';
+import User from './mongoDB/users-schema.js';
 //create express app
 import express from 'express';
 const app = express();
 app.use(cors());
 app.use(express.json());
-const port = 3001;
 
 // Connecting to database
 var query = 'mongodb://root:ASrosTOS.2022@159.65.127.76:27017/chat-app?authSource=admin';
-
 const db = (query);
 mongoose.Promise = global.Promise;
-
 mongoose.connect(db, {
 	useNewUrlParser: true,
 	useUnifiedTopology: true
@@ -49,22 +49,34 @@ app.get('/api/message-history', (req, res) => {
 app.get('/api/room-activity', (req, res) => {
 	const room = req.query.room;
 	const username = req.query.username;
+	var allMessages;
+	var selfMessages;
+	var roomAge;
 	Message.find({ room: room }).sort({created: "asc"}).exec( (err, messages) => {
 		if (err) {
 			return res.status(500).send(err);
 		} else {
-			Message.find({ room: room, username: username }, (err, selfMessages) => {
-				if (err) {
-					return res.status(500).send(err);
-				} else {
-					return res.send({
-						allMessages: messages.length,
-						selfMessages: selfMessages.length,
-						firstMessage: messages[0].created,
-					});
-				}
-			});
+			allMessages = messages;
 		}
+	});
+	Message.find({ room: room, username: username }, (err, messages) => {
+		if (err) {
+			return res.status(500).send(err);
+		} else {
+			selfMessages = messages;
+		}
+	});
+	Room.find({ name: room }, (err, room) => {
+		if (err) {
+			return res.status(500).send(err);
+		} else {
+			roomAge = rooms.createdAt;
+		}
+	});
+	return res.send({
+		allMessages,
+		selfMessages,
+		roomAge
 	});
 });
 //create server

@@ -5,7 +5,7 @@ const socket_url = process.env.REACT_APP_SOCKET_URL ||
 	"http://localhost:3001";
 var socket = io.connect(socket_url);
 
-function ChatPanel() {
+function ChatPanel({ room }) {
 	const messageEl = useRef(null);
 	const [message, setMessage] = useState('');
 	const [messages, setMessages] = useState([]);
@@ -13,7 +13,7 @@ function ChatPanel() {
 	useEffect(() => {
 		console.log(socket);
 		//message history on load
-		fetch('http://localhost:3001/api/message-history?room=test')
+		fetch(`http://localhost:3001/api/message-history?room=${room}`)
 			.then(res => res.json())
 			.then(data => {
 				setMessages(data);
@@ -28,7 +28,7 @@ function ChatPanel() {
 	// get new messages
 	useEffect(() => {
 		socket.on('message', (message) => {
-			fetch('http://localhost:3001/api/message-history?room=test')
+			fetch(`http://localhost:3001/api/message-history?room=${room}`)
 				.then(res => res.json())
 				.then(data => {
 					setMessages(data);
@@ -52,7 +52,7 @@ function ChatPanel() {
 	}, [messages]);
 
 	const sendMessage = () => {
-		socket.emit('message', { message, room: 'test' });
+		socket.emit('message', { message, room: room });
 		setMessage('');
 	};
 	return (

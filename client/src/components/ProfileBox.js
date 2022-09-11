@@ -1,6 +1,6 @@
 import React from 'react'
 
-function ProfileBox() {
+function ProfileBox({ room }) {
 	return (
 		<div className="app-profile-box">
 			<img
