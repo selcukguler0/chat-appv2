@@ -1,0 +1,10 @@
+[
+	{
+		"name": "test",
+		"active": true
+	},
+	{
+		"name": "test2",
+		"active": false
+	}
+]

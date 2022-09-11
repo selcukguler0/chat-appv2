@@ -12,10 +12,29 @@ import RoomActivityBox from '../components/RoomActivityBox';
 
 export default function Room() {
 	let { id } = useParams();
+	const [roomExists, setRoomExists] = useState(false);
 
 	useEffect(() => {
-		
-	},[])
+		// check room exists
+		fetch(process.env.REACT_APP_SITE_URL+`/api/room-exists?room=${id}`)
+			.then(res => res.json())
+			.then(room => {
+				if (room) {
+					console.log(room[0]);
+					if (room[0].active) {
+						setRoomExists(true);
+					}
+				} else {
+					setRoomExists(false);
+				}
+			}
+		);
+	}, [])
+	if (!roomExists) {
+		return (
+			<div>Room not exists</div>
+		)
+	}
 	return (
 		<div className="app-container">
 			<div className="app-left">

@@ -46,6 +46,17 @@ app.get('/api/message-history', (req, res) => {
 		}
 	});
 });
+
+app.get('/api/room-exists', (req, res) => {
+	const room = req.query.room;
+	Room.find({ name: room }, (err, room) => {
+		if (err) {
+			return res.status(500).send(err);
+		} else {
+			return res.send(room);
+		}
+	});
+});
 app.get('/api/room-activity', (req, res) => {
 	const room = req.query.room;
 	const username = req.query.username;
@@ -70,7 +81,7 @@ app.get('/api/room-activity', (req, res) => {
 		if (err) {
 			return res.status(500).send(err);
 		} else {
-			roomAge = rooms.createdAt;
+			roomAge = room.createdAt;
 		}
 	});
 	return res.send({
