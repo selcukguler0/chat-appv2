@@ -498,6 +498,7 @@ body[data-theme=dark] {
 }
 
 .message-wrapper.reverse {
+	margin-right: 10px;
 	justify-content: flex-end;
 }
 

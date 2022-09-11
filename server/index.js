@@ -25,7 +25,7 @@ mongoose.connect(db, {
 	}
 });
 
-app.get('/api/testMessage', (req, res) => {
+app.get('/api/activeUsers', (req, res) => {
 	var message = new Message({
 		username: 'test',
 		message: 'test',
@@ -106,9 +106,9 @@ io.on('connection', (socket) => {
 		socket.join(room);
 		console.log('joined room: ' + room);
 	});
-	socket.on('message', ({message, room}) => {
+	socket.on('message', ({message, username, room}) => {
 		var message = new Message({
-			username: 'test',
+			username: username,
 			message: message,
 			room: room
 		});

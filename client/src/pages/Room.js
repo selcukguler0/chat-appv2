@@ -43,6 +43,7 @@ export default function Room() {
 	const roomLogin = () => {
 		if (password === roomData.password) {
 			localStorage.setItem('password', password);
+			localStorage.setItem('username', username);
 			setAccessRoom(true);
 		} else {
 			setAccessRoom(false);
@@ -58,6 +59,7 @@ export default function Room() {
 		if (!accessRoom) {
 			if (roomData.password) {
 				if (localStorage.getItem("password") === roomData.password) {
+					setUsername(localStorage.getItem("username"));
 					setAccessRoom(true);
 				}
 				return (
@@ -70,11 +72,16 @@ export default function Room() {
 			}
 			//if room not protected
 			else {
+				console.log("setting username room not protected");
+				setUsername(localStorage.getItem("username"));
 				setAccessRoom(true);
 			}
 		}
+		// user has access to room
+
 	}
 	
+	console.log("username", username);
 	return (
 		<div className="app-container">
 			<div className="app-left">
@@ -82,9 +89,9 @@ export default function Room() {
 				<ProfileBox room={id} />
 				<ActiveUsers room={id} />
 			</div>
-			<ChatPanel room={id} socket={socket} />
+			<ChatPanel room={id} socket={socket} username={username} />
 			<div className="app-right">
-				<RoomActivityBox room={id} socket={socket} />
+				<RoomActivityBox room={id} socket={socket} username={username} />
 			</div>
 			{/* //TODO - Add Theme Picker */}
 			{/* <div className="app-right-bottom">

@@ -1,6 +1,6 @@
 import React,{useState, useEffect} from 'react'
 
-export default function RoomActivityBox({ room, socket }) {
+export default function RoomActivityBox({ room, socket, username }) {
 	const [data, setData] = useState([])
 	// date difference in day => Math.ceil(time diff / (1000 * 60 * 60 * 24)); 
 	const RoomAge = (date) => {
@@ -16,7 +16,7 @@ export default function RoomActivityBox({ room, socket }) {
 
 	//get data at beginning
 	useEffect(() => {
-		room && fetch(`http://localhost:3001/api/room-activity?room=${room}&username=test`)
+		room && fetch(`http://localhost:3001/api/room-activity?room=${room}&username=${username}`)
 			.then(response => response.json())
 			.then(data => setData(data));
 	}, []);

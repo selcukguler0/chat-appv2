@@ -1,12 +1,10 @@
 import React, {useEffect, useState, useRef} from 'react'
 
-
-
-function ChatPanel({ room, socket }) {
+function ChatPanel({ room, socket, username }) {
 	const messageEl = useRef(null);
 	const [message, setMessage] = useState('');
 	const [messages, setMessages] = useState([]);
-
+	console.log("username",username);
 	useEffect(() => {
 		console.log(socket);
 		//message history on load
@@ -49,14 +47,14 @@ function ChatPanel({ room, socket }) {
 	}, [messages]);
 
 	const sendMessage = () => {
-		socket.emit('message', { message, room: room });
+		socket.emit('message', { message, username, room });
 		setMessage('');
 	};
 	return (
 		<div className="app-main">
 			<div ref={messageEl} className="chat-wrapper">
 				{messages.map((message, i) => (
-					message.username === "test" ? (
+					message.username !== username ? (
 						<div key={i} className="message-wrapper">
 							<img
 								className="message-pp"
@@ -65,7 +63,7 @@ function ChatPanel({ room, socket }) {
 							/>
 							<div className="message-box-wrapper">
 								<div className="message-box">{message.message}</div>
-								<span>9h ago</span>
+								<span>{message.username}</span>
 							</div>
 						</div>
 					) : (
@@ -79,7 +77,7 @@ function ChatPanel({ room, socket }) {
 								<div className="message-box">
 									{message.message}
 								</div>
-								<span>9h ago</span>
+									<span>{message.username}</span>
 							</div>
 						</div>
 					)))}
