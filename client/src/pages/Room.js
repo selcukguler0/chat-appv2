@@ -40,29 +40,38 @@ export default function Room() {
 
 	const validatePassword = () => {
 		if (password === roomData.password) {
-			console.log("ok");
+			localStorage.setItem('password', password);
 			setAccessRoom(true);
 		} else {
 			setAccessRoom(false);
 		}
 	}
-
 	if (!roomExists) {
 		return (
 			<div>Room not exists</div>
 		)
 	}
-	
-	if (!accessRoom) {
-		if (roomData.password) {
-			return (
-				<div>
-					<input type="password" placeholder="Enter Room Password" value={password} onChange={(e) => setPassword(e.target.value)} />
-					<button onClick={validatePassword}>Submit</button>
-				</div>
-			)
+	//wait for dom for use localstorage
+	if (typeof window !== "undefined") {
+		if (!accessRoom) {
+			if (roomData.password) {
+				if (localStorage.getItem("password") === roomData.password) {
+					setAccessRoom(true);
+				}
+				return (
+					<div>
+						<input type="password" placeholder="Enter Room Password" value={password} onChange={(e) => setPassword(e.target.value)} />
+						<button onClick={validatePassword}>Submit</button>
+					</div>
+				)
+			}
+			//if room not protected
+			else {
+				setAccessRoom(true);
+			}
 		}
 	}
+	
 	return (
 		<div className="app-container">
 			<div className="app-left">
