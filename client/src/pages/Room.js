@@ -3,6 +3,8 @@ import { useParams } from 'react-router-dom'
 import $ from 'jquery';
 import Helmet from 'react-helmet';
 
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import '../styles/Room.css';
 
 import ChatPanel from '../components/ChatPanel';
@@ -17,17 +19,22 @@ const socket_url = process.env.REACT_APP_SOCKET_URL ||
 var socket = io.connect(socket_url);
 
 export default function Room() {
-	let { id } = useParams();
+	let { room } = useParams();
 	const [roomExists, setRoomExists] = useState(false);
 	const [roomData, setRoomData] = useState({});
 	const [accessRoom, setAccessRoom] = useState(false);
 	const [password, setPassword] = useState('');
 	const [username, setUsername] = useState('');
 	const [users, setUsers] = useState([]);
+	const [socketId, setSocketId] = useState('');
 
 	useEffect(() => {
+		socket.on('connect', () => {
+			console.log("socked id: " + socket.id);
+			setSocketId(socket.id);
+		});
 		// check room exists
-		fetch(`http://localhost:3001/api/room-exists?room=${id}`)
+		fetch(`http://localhost:3001/api/room-exists?room=${room}`)
 			.then(res => res.json())
 			.then(room => {
 				if (room) {
@@ -40,8 +47,8 @@ export default function Room() {
 					setRoomExists(false);
 				}
 			});
-		
-		fetch(`http://localhost:3001/api/active-users?room=${id}`)
+
+		fetch(`http://localhost:3001/api/active-users?room=${room}`)
 			.then(res => res.json())
 			.then(users => {
 				console.log(users);
@@ -53,6 +60,7 @@ export default function Room() {
 			);
 	}, [])
 	const usernameHandler = (e) => {
+		console.log("username: " + e.target.value);
 		setUsername(e.target.value);
 		if (e.target.value.length >= 6) {
 			$('#password').attr('disabled', false);
@@ -62,11 +70,45 @@ export default function Room() {
 	};
 	const roomLogin = () => {
 		if (password === roomData.password) {
-			localStorage.setItem('password', password);
-			localStorage.setItem('username', username);
-			setAccessRoom(true);
+			fetch(`http://localhost:3001/api/user-exists?username=${username}&room=${room}`)
+				.then(res => res.json())
+				.then(user => {
+					if (user.length === 0) {
+						setAccessRoom(true);
+						console.log("setting username", username);
+						localStorage.setItem('password', password);
+						localStorage.setItem('username', username);
+						console.log("user does not exist");
+						fetch(`http://localhost:3001/api/create-user?username=${username}&room=${room}`)
+							.then(res => res.json())
+							.then(user => localStorage.setItem("username", username));
+					}
+					else {
+						setAccessRoom(false);
+						const notify = () => toast.error('User Exists!', {
+							position: "top-right",
+							autoClose: 3000,
+							hideProgressBar: false,
+							closeOnClick: true,
+							pauseOnHover: true,
+							draggable: true,
+							progress: undefined,
+						});
+						notify();
+						console.log("user exists");
+					}
+				});
 		} else {
 			setAccessRoom(false);
+			toast.error('Password is not correct!', {
+				position: "top-right",
+				autoClose: 3000,
+				hideProgressBar: false,
+				closeOnClick: true,
+				pauseOnHover: true,
+				draggable: true,
+				progress: undefined,
+			});
 		}
 	}
 	if (!roomExists) {
@@ -74,16 +116,29 @@ export default function Room() {
 			<div>Room not exists</div>
 		)
 	}
+
 	//wait for dom for use localstorage
 	if (typeof window !== "undefined") {
 		if (!accessRoom) {
 			if (roomData.password) {
-				if (localStorage.getItem("password") === roomData.password) {
+				if (localStorage.getItem("password") === roomData.password
+					&& localStorage.getItem("password") === room) {
 					setUsername(localStorage.getItem("username"));
 					setAccessRoom(true);
 				}
 				return (
 					<>
+						<ToastContainer
+							position="top-right"
+							autoClose={3000}
+							hideProgressBar={false}
+							newestOnTop={false}
+							closeOnClick
+							rtl={false}
+							pauseOnFocusLoss
+							draggable
+							pauseOnHover
+						/>
 						<Helmet>
 							<link
 								rel="stylesheet"
@@ -98,8 +153,8 @@ export default function Room() {
 						</Helmet>
 						<form>
 							<label htmlFor="password">Password</label>
-							<input id="username" minLength={6} maxLength={12} placeholder="Enter your username" required={true} value={username} onChange={(e) => usernameHandler(e)} />
-							<input id="password" type="password" minLength={6} maxLength={12} placeholder="Enter your password" required={true} value={password} onChange={(e) => setPassword(e.target.value)} disabled />
+							<input room="username" minLength={6} maxLength={12} placeholder="Enter your username" required={true} value={username} onChange={(e) => usernameHandler(e)} />
+							<input id='password' room="password" type="password" minLength={6} maxLength={12} placeholder="Enter your password" required={true} value={password} onChange={(e) => setPassword(e.target.value)} disabled />
 							<label onClick={roomLogin} className="login-button" htmlFor="login"><span>Enter</span>
 								<svg>
 									<path d="M10,17V14H3V10H10V7L15,12L10,17M7,2H17A2,2 0 0,1 19,4V20A2,2 0 0,1 17,22H7A2,2 0 0,1 5,20V16H7V20H17V4H7V8H5V4A2,2 0 0,1 7,2Z"></path>
@@ -131,21 +186,38 @@ export default function Room() {
 				setAccessRoom(true);
 			}
 		}
-		// user has access to room
-
 	}
 
-	console.log("username", username);
+	if (accessRoom) {
+		console.log(socketId);
+		console.log(`http://localhost:3001/api/set-socket?username=${username}&room=${room}&socketId=${socketId}`);
+		fetch(`http://localhost:3001/api/set-socket?username=${username}&room=${room}&socketId=${socketId}`)
+			.then(res => res.json())
+			.then(data => console.log(data));
+
+		socket.emit('join-room', room);
+	}
 	return (
 		<div className="app-container">
+			<ToastContainer
+				position="top-right"
+				autoClose={3000}
+				hideProgressBar={false}
+				newestOnTop={false}
+				closeOnClick
+				rtl={false}
+				pauseOnFocusLoss
+				draggable
+				pauseOnHover
+			/>
 			<div className="app-left">
-				<RoomHeader room={id} />
-				<ProfileBox room={id} username={username} />
-				<ActiveUsers room={id} username={username} users={users} />
+				<RoomHeader room={room} />
+				<ProfileBox room={room} username={username} />
+				<ActiveUsers room={room} username={username} socket={socket} />
 			</div>
-			<ChatPanel room={id} socket={socket} username={username} />
+			<ChatPanel room={room} socket={socket} username={username} />
 			<div className="app-right">
-				<RoomActivityBox room={id} socket={socket} username={username} users={users} />
+				<RoomActivityBox room={room} socket={socket} username={username} users={users} />
 			</div>
 			{/* //TODO - Add Theme Picker */}
 			{/* <div className="app-right-bottom">

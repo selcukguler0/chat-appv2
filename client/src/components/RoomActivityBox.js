@@ -24,7 +24,20 @@ export default function RoomActivityBox({ room, socket, username, users }) {
 	//get data when new message comes
 	useEffect(() => {
 		socket.on('message', () => {
+			console.log("message received");
 			room && fetch(`http://localhost:3001/api/room-activity?room=${room}&username=${username}`)
+				.then(response => response.json())
+				.then(data => setData(data));
+		});
+		socket.on('user-connected', () => {
+			console.log("user connected");
+			fetch(`http://localhost:3001/api/room-activity?room=${room}&username=${username}`)
+				.then(response => response.json())
+				.then(data => setData(data));
+		});
+		socket.on('user-disconnected', () => {
+			console.log("user disconnected");
+			fetch(`http://localhost:3001/api/room-activity?room=${room}&username=${username}`)
 				.then(response => response.json())
 				.then(data => setData(data));
 		});
@@ -85,7 +98,7 @@ export default function RoomActivityBox({ room, socket, username, users }) {
 					</div>
 					<div className="info-text-wrapper">
 						{/* (+1) including self */}
-						<span className="info-text-upper">{users.length + 1}</span>
+						<span className="info-text-upper">{data.activeUsers}</span>
 						<span className="info-text-bottom">Active Users</span>
 					</div>
 				</div>

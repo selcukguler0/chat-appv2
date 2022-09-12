@@ -1,6 +1,31 @@
 import React, { useEffect, useState } from 'react'
 
-export default function ActiveUsers({ room, username, users }) {
+export default function ActiveUsers({ socket, room, username }) {
+	const [users, setData] = useState([]);
+
+	useEffect(() => {
+		socket.on('user-connected', () => {
+			console.log("user connected");
+			fetch(`http://localhost:3001/api/active-users?room=${room}`)
+				.then(response => response.json())
+				.then(data => {
+					data = data.filter(user => user.username !== username);
+					setData(data);
+				});
+		});
+		socket.on('user-disconnected', () => {
+			console.log("user disconnected");
+			fetch(`http://localhost:3001/api/active-users?room=${room}`)
+				.then(response => response.json())
+				.then(data => {
+					data = data.filter(user => user.username !== username);
+					setData(data);
+				});
+		});
+		// return () => {
+		// 	socket.off('message');
+		// };
+	}, [socket]);
 	return (
 		<div className="chat-list-wrapper">
 			<div className="chat-list-header">

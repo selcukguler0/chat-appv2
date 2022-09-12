@@ -5,6 +5,7 @@ var UserSchema = new Schema({
 	username: String,
 	room: String,
 	status: String,
+	socketId: String,
 	createdAt: { type: Date, default: Date.now }
 });
 

@@ -27,7 +27,7 @@ mongoose.connect(db, {
 
 app.get('/api/active-users', (req, res) => {
 	const room = req.query.room;
-	User.find({ room: room }, (err, users) => {
+	User.find({ room: room, status: "online" }, (err, users) => {
 		if (err) {
 			return res.status(500).send(err);
 		} else {
@@ -58,6 +58,43 @@ app.get('/api/room-exists', (req, res) => {
 		}
 	});
 });
+app.get('/api/user-exists', (req, res) => {
+	const username = req.query.username;
+	const room = req.query.room;
+	User.find({ username: username, room: room }, (err, user) => {
+		if (err) {
+			return res.status(500).send(err);
+		} else {
+			return res.send(user);
+		}
+	});
+});
+app.get('/api/create-user', (req, res) => {
+	const username = req.query.username;
+	const roomName = req.query.room;
+
+	User.create({ username: username, room: roomName, status: "online", socketId: "" }, (err, user) => {
+		if (err) {
+			return res.status(500).send(err);
+		} else {
+			return res.send({ message: "User created", roomName, username });
+		}
+	});
+});
+app.get('/api/set-socket', (req, res) => {
+	const username = req.query.username;
+	const roomName = req.query.room;
+	const socketId = req.query.socketId;
+	User.findOneAndUpdate({ username: username, room: roomName },
+		{ socketId: socketId, status: "online" }, (err, user) => {
+			if (err) {
+				return res.status(500).send(err);
+			} else {
+				return res.send({ message: "Socket set" });
+			}
+		}
+	);
+});
 app.get('/api/create-room', (req, res) => {
 	const username = req.query.username;
 	const roomName = req.query.room;
@@ -67,46 +104,53 @@ app.get('/api/create-room', (req, res) => {
 		if (err) {
 			return res.status(500).send(err);
 		} else {
-			User.create({ name: username, room: roomName, status: "" }, (err, user) => {
+			User.create({ username: username, room: roomName, status: "online", socketId: "" }, (err, user) => {
 				if (err) {
 					return res.status(500).send(err);
 				} else {
-					return res.send({ message: "Room created", room: room.name, user: user.name });
+					return res.send({ message: "Room created", roomName, username });
 				}
 			});
 		}
 	});
 });
 app.get('/api/room-activity', (req, res) => {
-	const room = req.query.room;
+	const roomName = req.query.room;
 	const username = req.query.username;
 
-	Message.find({ room: room }).sort({ created: "asc" }).exec((err, allMessages) => {
+	Message.find({ room: roomName }).sort({ created: "asc" }).exec((err, allMessages) => {
 		if (err) {
 			return res.status(500).send(err);
 		} else {
-			Message.find({ room: room, username: username }, (err, selfMessages) => {
+			Message.find({ room: roomName, username: username }, (err, selfMessages) => {
 				if (err) {
 					return res.status(500).send(err);
 				} else {
-					Room.find({ name: room }, (err, room) => {
+					Room.find({ name: roomName }, (err, room) => {
 						if (err) {
 							return res.status(500).send(err);
 						} else {
-							return res.send({
-								allMessagesCount: allMessages.length,
-								selfMessagesCount: selfMessages.length,
-								roomAge: room[0].createdAt
+							User.find({ room: roomName, status: "online" }, (err, users) => {
+								if (err) {
+									return res.status(500).send(err);
+								}
+								else {
+									return res.send({
+										allMessagesCount: allMessages.length,
+										selfMessagesCount: selfMessages.length,
+										roomAge: room[0].createdAt,
+										activeUsers: users.length
+									});
+								}
 							});
 						}
 					});
 				}
 			});
-			
 		}
 	});
-	
-	
+
+
 });
 //create server
 const httpServer = createServer(app);
@@ -124,9 +168,10 @@ io.on('connection', (socket) => {
 	socket.on('join-room', (room) => {
 		roomName = room;
 		socket.join(room);
+		io.emit('user-connected');
 		console.log('joined room: ' + room);
 	});
-	socket.on('message', ({message, username, room}) => {
+	socket.on('message', ({ message, username, room }) => {
 		var message = new Message({
 			username: username,
 			message: message,
@@ -137,6 +182,18 @@ io.on('connection', (socket) => {
 		io.emit('message', message);
 	}
 	);
+	socket.on('disconnect', () => {
+		console.log(socket.id, 'user disconnected');
+		io.emit('user-disconnected');
+		User.findOneAndUpdate({ socketId: socket.id }, { status: "offline" }, (err, user) => {
+			if (err) {
+				console.log(err);
+			} else {
+				console.log("user disconnected");
+			}
+		}
+		);
+	});
 });
 
 httpServer.listen(3001);
