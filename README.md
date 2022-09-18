@@ -15,7 +15,7 @@ Clone Project
 ``` 
 (First Open Project Folder) Create .env file | add your mongodb connection string to .env as (MONGO_URI)
 ```bash 
-  cd api && touch .env
+  cd api && touch .env && echo 'MONGO_URI="your mongodb connection string"' >> .env
 ``` 
 
 (First Open Project Folder) then
