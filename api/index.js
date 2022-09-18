@@ -1,6 +1,7 @@
 import { Server } from 'socket.io';
 import cors from 'cors';
 import { createServer } from "http";
+import * as dotenv from 'dotenv';
 //Mongoose
 import mongoose from 'mongoose';
 import Message from './mongoDB/message-shema.js';
@@ -11,9 +12,9 @@ import express from 'express';
 const app = express();
 app.use(cors());
 app.use(express.json());
-
+dotenv.config()
 // Connecting to database
-var query = 'mongodb://root:ASrosTOS.2022@159.65.127.76:27017/chat-app?authSource=admin';
+var query = process.env.MONGO_URI;
 const db = (query);
 mongoose.Promise = global.Promise;
 mongoose.connect(db, {
