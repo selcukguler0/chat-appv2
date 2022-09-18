@@ -13,6 +13,10 @@ Clone Project
 ```bash 
   npm install && cd api && npm install
 ``` 
+(First Open Project Folder) Create .env file | add your mongodb connection string to .env as (MONGO_URI)
+```bash 
+  cd api && touch .env
+``` 
 
 (First Open Project Folder) then
 ```bash 
