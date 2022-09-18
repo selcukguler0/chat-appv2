@@ -157,7 +157,7 @@ const httpServer = createServer(app);
 
 const io = new Server(httpServer, {
 	cors: {
-		origin: ["http://localhost:3000", "https://chat-app-sooty-five.vercel.app/", "http://selcukguler.com/"],
+		origin: ["http://localhost:3000", "https://chat-app-sooty-five.vercel.app/", "http://selcukguler.com/", "https://selcukguler.com/", "https://chat.selcukguler.com/"],
 		credentials: true,
 	},
 });
