@@ -1,3 +1,6 @@
+# Chat App with Node.js (Express) and ReactJS
+
+Another chat-app made with Node.js Backend and React Frontend
 
 ## Setup 
 
