@@ -1,0 +1,125 @@
+* {
+	margin: 0;
+	padding: 0;
+}
+
+html {
+	width: 100vw;
+	height: 100vh;
+}
+
+/* CSS which you need for blurred box */
+.bodyApp {
+	background-repeat: no-repeat;
+	background-attachment: fixed;
+	background-size: cover;
+	background-position: top;
+	background-image: url(http://bit.ly/2gPLxZ4);
+	width: 100%;
+	height: 100%;
+	font-family: Arial, Helvetica;
+	letter-spacing: 0.02em;
+	font-weight: 400;
+	-webkit-font-smoothing: antialiased;
+}
+
+.blurred-box {
+	position: relative;
+	width: 250px;
+	top: calc(50% - 175px);
+	left: calc(50% - 125px);
+	background: inherit;
+	border-radius: 2px;
+	overflow: hidden;
+}
+
+.blurred-box:after {
+	content: '';
+	width: 300px;
+	height: 300px;
+	background: inherit;
+	position: absolute;
+	left: -25px;
+	/* left position right: 0; */
+	top: -25px;
+	/* top position bottom: 0; */
+	box-shadow: inset 0 0 0 200px rgba(255, 255, 255, 0.05);
+	filter: blur(10px);
+}
+
+
+/* Form which you dont need */
+.user-login-box {
+	position: relative;
+	margin-top: 50px;
+	text-align: center;
+	z-index: 1;
+}
+
+.user-login-box>* {
+	display: inline-block;
+	width: 200px;
+}
+
+.user-icon {
+	width: 100px;
+	height: 100px;
+	position: relative;
+	border-radius: 50%;
+	background-size: contain;
+}
+
+.user-name {
+	margin-top: 15px;
+	margin-bottom: 15px;
+	color: white;
+}
+
+.username,
+.password {
+	width: 100%;
+	opacity: 0.4;
+	border-radius: 2px;
+	padding: 15px;
+	margin: 5px;
+	border: 0;
+}
+
+.user-login,
+.random-password {
+	width: 100%;
+	opacity: 0.7;
+	border-radius: 2px;
+	padding: 10px;
+	margin: 5px;
+	border: 0;
+	text-align: center;
+}
+
+.user-login:hover,
+.random-password {
+	cursor: pointer;
+	opacity: 1;
+}
+
+.random-password,
+.random-password {
+	position: absolute;
+	width: 10px;
+	top: 12px;
+	right: 0;
+}
+
+.username:valid {
+	border: 5px solid green;
+	border-radius: 3px;
+}
+
+.username:invalid {
+	border: 5px solid red;
+	border-radius: 3px;
+}
+
+.username:focus {
+	outline: none;
+}

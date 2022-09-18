@@ -165,25 +165,42 @@ const io = new Server(httpServer, {
 io.on('connection', (socket) => {
 	var roomName;
 	console.log('a user connected');
-	socket.on('join-room', (room) => {
+	socket.on('join-room', ({ room, username }) => {
 		roomName = room;
 		socket.join(room);
-		io.emit('user-connected');
+		new Message({
+			username: "system-bot",
+			message: `${username} has joined the room`,
+			room: room
+		}).save();
+		io.emit('user-connected', username);
 		console.log('joined room: ' + room);
+		console.log('joined username: ' + username);
 	});
 	socket.on('message', ({ message, username, room }) => {
-		var message = new Message({
+		new Message({
 			username: username,
 			message: message,
 			room: room
-		});
-		message.save();
+		}).save();
 		console.log("message", message);
 		io.emit('message', message);
 	}
 	);
 	socket.on('disconnect', () => {
 		console.log(socket.id, 'user disconnected');
+		User.findOne({ socketId: socket.id }, (err, user) => {
+			if (err) {
+				console.log(err);
+			} else {
+				new Message({
+					username: "system-bot",
+					message: `${user.username} has left the room`,
+					room: roomName
+				}).save();
+			}
+		}
+		);
 		io.emit('user-disconnected');
 		User.findOneAndUpdate({ socketId: socket.id }, { status: "offline" }, (err, user) => {
 			if (err) {

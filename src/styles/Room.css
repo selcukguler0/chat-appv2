@@ -465,7 +465,9 @@ body[data-theme=dark] {
 	margin: 0 4px;
 	color: #ffca3e;
 }
-
+.chat-send-btn:hover {
+	cursor: pointer;
+}
 .chat-send-btn {
 	height: 32px;
 	color: #fff;
@@ -905,4 +907,18 @@ body[data-theme=dark] {
 	.app-main {
 		height: calc(100% - 48px);
 	}
+}
+
+.sharePass {
+	color: white;
+	margin-left: 3px;
+}
+.sharePass:hover{
+	color: #477eff;
+	cursor: pointer;
+}
+
+.bot-message {
+	background-color: green;
+	color: white;
 }

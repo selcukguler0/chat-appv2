@@ -57,7 +57,8 @@ export default function Room() {
 				console.log(filteredUsers);
 				setUsers(filteredUsers);
 			}
-			);
+		);
+		localStorage.setItem('room', room);
 	}, [])
 	const usernameHandler = (e) => {
 		console.log("username: " + e.target.value);
@@ -68,6 +69,25 @@ export default function Room() {
 			$('#password').attr('disabled', true);
 		}
 	};
+	//send message with enter key and focus to message input
+	useEffect(() => {
+		const keyDownHandler = event => {
+			console.log('User pressed: ', event.key);
+
+			if (event.key === 'Enter') {
+				event.preventDefault();
+
+				document.getElementsByClassName('chat-input')[0].focus();
+				document.getElementsByClassName('chat-send-btn')[0].click();
+			}
+		};
+
+		document.addEventListener('keydown', keyDownHandler);
+
+		return () => {
+			document.removeEventListener('keydown', keyDownHandler);
+		};
+	}, []);
 	const roomLogin = () => {
 		if (password === roomData.password) {
 			fetch(`http://localhost:3001/api/user-exists?username=${username}&room=${room}`)
@@ -122,7 +142,7 @@ export default function Room() {
 		if (!accessRoom) {
 			if (roomData.password) {
 				if (localStorage.getItem("password") === roomData.password
-					&& localStorage.getItem("password") === room) {
+					&& localStorage.getItem("room") === room) {
 					setUsername(localStorage.getItem("username"));
 					setAccessRoom(true);
 				}
@@ -151,31 +171,21 @@ export default function Room() {
 							/>
 							<body className="bodyApp" />
 						</Helmet>
-						<form>
-							<label htmlFor="password">Password</label>
-							<input room="username" minLength={6} maxLength={12} placeholder="Enter your username" required={true} value={username} onChange={(e) => usernameHandler(e)} />
-							<input id='password' room="password" type="password" minLength={6} maxLength={12} placeholder="Enter your password" required={true} value={password} onChange={(e) => setPassword(e.target.value)} disabled />
-							<label onClick={roomLogin} className="login-button" htmlFor="login"><span>Enter</span>
-								<svg>
-									<path d="M10,17V14H3V10H10V7L15,12L10,17M7,2H17A2,2 0 0,1 19,4V20A2,2 0 0,1 17,22H7A2,2 0 0,1 5,20V16H7V20H17V4H7V8H5V4A2,2 0 0,1 7,2Z"></path>
-								</svg>
-							</label>
-							<div className="padlock">
-								<div className="padlock__hook">
-									<div className="padlock__hook-body"></div>
-									<div className="padlock__hook-body"></div>
-								</div>
-								<div className="padlock__body">
-									<div className="padlock__face">
-										<div className="padlock__eye padlock__eye--left"></div>
-										<div className="padlock__eye padlock__eye--right"></div>
-										<div className="padlock__mouth padlock__mouth--one"></div>
-										<div className="padlock__mouth padlock__mouth--two"></div>
-										<div className="padlock__mouth padlock__mouth--three"></div>
+						<div className="blurred-box">
+							<div className="user-login-box">
+								<h1 style={{ color: "white" }}>Join Room Start Chatting</h1>
+								<div className="user-name"></div>
+								<div>
+									<input value={username} onChange={(e) => setUsername(e.target.value)} placeholder='Username' className="username" type="text" required={true} minLength={5} />
+									<div style={{ position: "relative" }}>
+										<input className="password" value={password}
+											onChange={(e)=>setPassword(e.target.value)} placeholder='Room Password' type="text" />
 									</div>
+									<button onClick={roomLogin} className="user-login">Join Room</button>
 								</div>
 							</div>
-						</form>
+
+						</div>
 					</>
 				)
 			}
@@ -189,38 +199,37 @@ export default function Room() {
 	}
 
 	if (accessRoom) {
-		console.log(socketId);
-		console.log(`http://localhost:3001/api/set-socket?username=${username}&room=${room}&socketId=${socketId}`);
 		fetch(`http://localhost:3001/api/set-socket?username=${username}&room=${room}&socketId=${socketId}`)
 			.then(res => res.json())
 			.then(data => console.log(data));
 
-		socket.emit('join-room', room);
+		socket.emit('join-room', {room, username});
 	}
 	return (
-		<div className="app-container">
-			<ToastContainer
-				position="top-right"
-				autoClose={3000}
-				hideProgressBar={false}
-				newestOnTop={false}
-				closeOnClick
-				rtl={false}
-				pauseOnFocusLoss
-				draggable
-				pauseOnHover
-			/>
-			<div className="app-left">
-				<RoomHeader room={room} />
-				<ProfileBox room={room} username={username} />
-				<ActiveUsers room={room} username={username} socket={socket} />
-			</div>
-			<ChatPanel room={room} socket={socket} username={username} />
-			<div className="app-right">
-				<RoomActivityBox room={room} socket={socket} username={username} users={users} />
-			</div>
-			{/* //TODO - Add Theme Picker */}
-			{/* <div className="app-right-bottom">
+		<>
+			<div className="app-container">
+				<ToastContainer
+					position="top-right"
+					autoClose={3000}
+					hideProgressBar={false}
+					newestOnTop={false}
+					closeOnClick
+					rtl={false}
+					pauseOnFocusLoss
+					draggable
+					pauseOnHover
+				/>
+				<div className="app-left">
+					<RoomHeader room={room} />
+					<ProfileBox room={room} username={username} />
+					<ActiveUsers room={room} username={username} socket={socket} />
+				</div>
+				<ChatPanel room={room} socket={socket} username={username} />
+				<div className="app-right">
+					<RoomActivityBox room={room} socket={socket} username={username} users={users} />
+				</div>
+				{/* //TODO - Add Theme Picker */}
+				{/* <div className="app-right-bottom">
 				<div className="app-theme-selector">
 					<button className="theme-color indigo" data-color="indigo">
 						<svg
@@ -285,7 +294,8 @@ export default function Room() {
 					</button>
 				</div>
 			</div> */}
-		</div>
+			</div>
 
+		</>
 	)
 }

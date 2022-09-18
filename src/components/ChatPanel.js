@@ -31,9 +31,23 @@ function ChatPanel({ room, socket, username }) {
 					console.log(data);
 				});
 		});
-		// return () => {
-		// 	socket.off('message');
-		// };
+		socket.on('user-connected', () => {
+			fetch(`http://localhost:3001/api/message-history?room=${room}`)
+				.then(res => res.json())
+				.then(data => {
+					setMessages(data);
+					console.log(data);
+				});
+		 });
+		socket.on('user-disconnected', () => {
+			console.log("user disconnected");
+			fetch(`http://localhost:3001/api/message-history?room=${room}`)
+				.then(res => res.json())
+				.then(data => {
+					setMessages(data);
+					console.log(data);
+				});
+		});
 	}, [socket]);
 	
 	//auto-scrool to bottom
@@ -51,19 +65,27 @@ function ChatPanel({ room, socket, username }) {
 		socket.emit('message', { message, username, room });
 		setMessage('');
 	};
-	// document.body.addEventListener("keypress", function (event) {
-	// 	// If the user presses the "Enter" key on the keyboard
-	// 	if (event.key === "Enter") {
-	// 		// Cancel the default action, if needed
-	// 		event.preventDefault();
-	// 		console.log("clicked enter");
-	// 		document.getElementsByClassName("chat-send-btn")[0].click();
-	// 	}
-	// });
+
 	return (
 		<div className="app-main">
 			<div ref={messageEl} className="chat-wrapper">
 				{messages.map((message, i) => (
+					message.username === "system-bot" ? (
+						<div key={i} className="message-wrapper">
+							<img
+								className="message-pp"
+								src={`https://avatars.dicebear.com/api/bottts/system-b.svg`}
+								alt="profile-pic"
+							/>
+							<div className="message-box-wrapper">
+								<div className="message-box bot-message">
+									<span style={{ opacity: "1", fontWeight: "700", color:"#fbfbfb"}}>{message.message.slice(0, message.message.indexOf(" "))}</span>{" "}
+									<span style={{ opacity: "1", fontWeight: "100", color: "#fbfbfb" }}>{message.message.slice(message.message.indexOf(" ") + 1)}</span>
+								</div>
+								<span>{message.username}</span>
+							</div>
+						</div>
+					) :
 					message.username !== username ? (
 						<div key={i} className="message-wrapper">
 							<img
@@ -95,7 +117,8 @@ function ChatPanel({ room, socket, username }) {
 
 			</div>
 			<div className="chat-input-wrapper">
-				<button className="chat-attachment-btn">
+				{/* //TODO add attachment icon */}
+				{/* <button className="chat-attachment-btn">
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
 						width={20}
@@ -111,7 +134,7 @@ function ChatPanel({ room, socket, username }) {
 						<defs />
 						<path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48" />
 					</svg>
-				</button>
+				</button> */}
 				<div className="input-wrapper">
 					<input
 						ref={sendMessageRef}
@@ -120,7 +143,8 @@ function ChatPanel({ room, socket, username }) {
 						className="chat-input"
 						placeholder="Enter your message here"
 					/>
-					<button className="emoji-btn">
+					{/* //TODO add emoji icon */}
+					{/* <button className="emoji-btn">
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
 							width={20}
@@ -137,7 +161,7 @@ function ChatPanel({ room, socket, username }) {
 							<circle cx={12} cy={12} r={10} />
 							<path d="M8 14s1.5 2 4 2 4-2 4-2M9 9h.01M15 9h.01" />
 						</svg>
-					</button>
+					</button> */}
 				</div>
 				<button ref={sendMessageRef} onClick={sendMessage} className="chat-send-btn">Send</button>
 			</div>
