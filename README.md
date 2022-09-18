@@ -21,3 +21,12 @@ Clone Project
 
 Now you are ready to use.
 Go http://localhost:3000/
+
+
+## Screenshots
+
+![Login Page](https://i.vgy.me/qEXL2l.png)
+
+![Chat Page](https://i.vgy.me/Q4RHYi.png)
+
+  
