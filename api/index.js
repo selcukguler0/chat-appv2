@@ -195,7 +195,7 @@ io.on('connection', (socket) => {
 			} else {
 				new Message({
 					username: "system-bot",
-					message: `${user.username} has left the room`,
+					message: `${user?.username} has left the room`,
 					room: roomName
 				}).save();
 			}
